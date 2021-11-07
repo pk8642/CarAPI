@@ -9,12 +9,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Класс контроллера для сущности производителей
+    /// </summary>
     [Route("api/manufacturers")]
     [ApiController]
     public class ManufacturersController : ControllerBase
     {
         private readonly ManufacturerRepository _db;
 
+        /// <summary>
+        /// Конструктор контроллера. При отсутствии данных в БД, добавляет строку по умолчанию
+        /// </summary>
+        /// <param name="context"> Контекст приложения </param>
         public ManufacturersController(ApplicationContext context)
         {
             _db = new ManufacturerRepository(context);
@@ -28,14 +35,21 @@ namespace API.Controllers
             context.SaveChanges();
         }
 
+        /// <summary>
+        /// Метод, возвращающий список всех производителей из БД
+        /// </summary>
         [HttpGet]
-        public async Task<IEnumerable<Manufacturer>> GetManufacturers()
+        public async Task<IEnumerable<Manufacturer>> GetManufacturersAsync()
         {
             return await _db.GetManufacturersListAsync();
         }
 
+        /// <summary>
+        /// Метод, возвращающий экземпляр производителя из БД по id
+        /// </summary>
+        /// <param name="id"> Некоторое число, уникальный номер производителя в БД </param>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Manufacturer>> GetManufacturer(int id)
+        public async Task<ActionResult<Manufacturer>> GetManufacturerAsync(int id)
         {
             var manufacturer = await _db.GetManufacturerAsync(id);
             if (manufacturer == null)
@@ -43,8 +57,12 @@ namespace API.Controllers
             return manufacturer;
         }
 
+        /// <summary>
+        /// Метод, Добавляющий нового производителя в БД
+        /// </summary>
+        /// <param name="manufacturer"> Объект производителя </param>
         [HttpPost]
-        public async Task<ActionResult<Car>> PostManufacturer(Manufacturer manufacturer)
+        public async Task<ActionResult<Car>> PostManufacturerAsync(Manufacturer manufacturer)
         {
             if (manufacturer == null)
             {

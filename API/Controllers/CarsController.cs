@@ -11,12 +11,19 @@ using System.Threading.Tasks;
 
 namespace API.Controllers
 {
+    /// <summary>
+    /// Класс контроллера для сущности машин
+    /// </summary>
     [Route("api/cars")]
     [ApiController]
     public class CarsController : ControllerBase
     {
         private readonly CarRepository _db;
 
+        /// <summary>
+        /// Конструктор контроллера. При отсутствии данных в БД, добавляет строку по умолчанию
+        /// </summary>
+        /// <param name="context"> Контекст приложения </param>
         public CarsController(ApplicationContext context)
         {
             _db = new CarRepository(context);
@@ -42,14 +49,21 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Метод, возвращающий список всех машин из БД
+        /// </summary>
         [HttpGet]
-        public async Task<List<Car>> GetCars()
+        public async Task<List<Car>> GetCarsAsync()
         {
             return await _db.GetCarsListAsync();
         }
 
+        /// <summary>
+        /// Метод, возвращающий экземпляр машины из БД по id
+        /// </summary>
+        /// <param name="id"> Некоторое число, уникальный номер машины в БД </param>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Car>> GetCar(int id)
+        public async Task<ActionResult<Car>> GetCarAsync(int id)
         {
             var car = await _db.GetCarAsync(id);
             if (car == null)
@@ -57,8 +71,12 @@ namespace API.Controllers
             return car;
         }
 
+        /// <summary>
+        /// Метод, Добавляющий новую машину в БД
+        /// </summary>
+        /// <param name="car"> Объект машины </param>
         [HttpPost]
-        public async Task<ActionResult<Car>> PostCar(Car car)
+        public async Task<ActionResult<Car>> PostCarAsync(Car car)
         {
             if (car == null)
             {
