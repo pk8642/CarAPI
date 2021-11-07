@@ -7,31 +7,45 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace API.Storages.Car
 {
+    /// <summary>
+    /// Класс репозитория модели класса Car, реализующий методы интерфейса IRepository. 
+    /// </summary>
     public class CarRepository : IRepository<Model.Car>
     {
         private readonly ApplicationContext _db;
         private bool _disposed;
 
-        //public CarRepository()
-        //{
-        //    db = new ModelsContext();
-        //}
-
+        /// <summary>
+        /// Конструктор данного класса.
+        /// Использует переданный контекст данных для совершения операций с БД.
+        /// </summary>
+        /// <param name="context"> Контекст данных </param>
         public CarRepository(ApplicationContext context)
         {
             _db = context;
         }
 
+        /// <summary>
+        /// Метод, возвращающий объект машины по ее id
+        /// </summary>
+        /// <param name="id"> Уникальный номер машины </param>
         public async Task<Model.Car> GetCarAsync(int id)
         {
             return await _db.Cars.FindAsync(id);
         }
 
+        /// <summary>
+        /// Метод, возвращающий список всех машин
+        /// </summary>
         public async Task<List<Model.Car>> GetCarsListAsync()
         {
             return await _db.Cars.ToListAsync();
         }
 
+        /// <summary>
+        /// Метод, добаляющий новую машину в БД
+        /// </summary>
+        /// <param name="item"> Объект машины </param>
         public async Task<EntityEntry<Model.Car>> CreateAsync(Model.Car item)
         {
             var manuf = await _db.Manufacturers.FindAsync(item.ManufacturerId);
@@ -43,24 +57,27 @@ namespace API.Storages.Car
             return await _db.Cars.AddAsync(item);
         }
 
+        /// <summary>
+        /// Метод выполняющий обновление БД
+        /// </summary>
+        /// <param name="item"> Объект машины </param>
         public void Update(Model.Car item)
         {
             _db.Entry(item).State = EntityState.Modified;
         }
 
-        public async void DeleteAsync(int id)
-        {
-            var car = await _db.Cars.FindAsync(id);
-            if (car != null)
-                _db.Cars.Remove(car);
-        }
-
+        /// <summary>
+        /// Метод, сохраняющий изменения в БД
+        /// </summary>
         public async Task<int> SaveAsync()
         {
             return await _db.SaveChangesAsync();
         }
 
-
+        /// <summary>
+        /// Освобождает неиспользующиеся ресурсы
+        /// </summary>
+        /// <param name="disposing"></param>
         public virtual void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -73,6 +90,9 @@ namespace API.Storages.Car
             _disposed = true;
         }
 
+        /// <summary>
+        /// Метод, освобождающий неиспользующиеся ресурсы
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
