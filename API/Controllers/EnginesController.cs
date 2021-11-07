@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Contexts;
 using API.Storages.Car.Model;
@@ -12,15 +13,18 @@ namespace API.Controllers
     [ApiController]
     public class EnginesController : ControllerBase
     {
-        private readonly EngineRepository db;
+        private readonly EngineRepository _db;
         public EnginesController(ApplicationContext context)
         {
-            db = new EngineRepository(context);
+            _db = new EngineRepository(context);
 
-            //if (context.Engines.Any())
-            //    return;
-            //db.Create(new Engine { Id = 1, Type = "fuel", Cars = new List<string> { "Corolla" } });
-            //db.Save();
+            if (context.Engines.Any())
+                return;
+            context.Engines.Add(new Engine
+            {
+                Id = 1, Type = "Fuel", Cars = new List<string> { "Corolla" }
+            });
+            context.SaveChanges();
         }
 
         //public EnginesController()
@@ -31,13 +35,13 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IEnumerable<Engine>> GetEngines()
         {
-            return await db.GetEnginesListAsync();
+            return await _db.GetEnginesListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Engine>> GetEngine(int id)
         {
-            var engine = await db.GetEngineAsync(id);
+            var engine = await _db.GetEngineAsync(id);
             if (engine == null)
                 return NotFound();
             return engine;
@@ -53,8 +57,8 @@ namespace API.Controllers
             }
 
             engine.Cars = new List<string>();
-            await db.CreateAsync(engine);
-            await db.SaveAsync();
+            await _db.CreateAsync(engine);
+            await _db.SaveAsync();
             return Ok(engine);
         }
     }

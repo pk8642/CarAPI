@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Contexts;
 using API.Storages.Car.Model;
@@ -12,28 +13,31 @@ namespace API.Controllers
     [ApiController]
     public class ManufacturersController : ControllerBase
     {
-        private readonly ManufacturerRepository db;
+        private readonly ManufacturerRepository _db;
 
         public ManufacturersController(ApplicationContext context)
         {
-            db = new ManufacturerRepository(context);
+            _db = new ManufacturerRepository(context);
 
-            //if (context.Manufacturers.Any())
-            //    return;
-            //db.Create(new Manufacturer { Id = 1, Name = "Toyota", Cars = new List<string> { "Corolla" } });
-            //db.Save();
+            if (context.Manufacturers.Any())
+                return;
+            context.Manufacturers.Add(new Manufacturer
+            {
+                Id = 1, Name = "Toyota", Cars = new List<string> { "Corolla" }
+            });
+            context.SaveChanges();
         }
 
         [HttpGet]
         public async Task<IEnumerable<Manufacturer>> GetManufacturers()
         {
-            return await db.GetManufacturersListAsync();
+            return await _db.GetManufacturersListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Manufacturer>> GetManufacturer(int id)
         {
-            var manufacturer = await db.GetManufacturerAsync(id);
+            var manufacturer = await _db.GetManufacturerAsync(id);
             if (manufacturer == null)
                 return NotFound();
             return manufacturer;
@@ -48,8 +52,8 @@ namespace API.Controllers
             }
 
             manufacturer.Cars = new List<string>();
-            await db.CreateAsync(manufacturer);
-            await db.SaveAsync();
+            await _db.CreateAsync(manufacturer);
+            await _db.SaveAsync();
             return Ok(manufacturer);
         }
     }

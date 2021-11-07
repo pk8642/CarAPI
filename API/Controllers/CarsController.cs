@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using API.Contexts;
+﻿using API.Contexts;
 using API.Storages.Car;
 using API.Storages.Car.Model;
+using API.Storages.Engine.Model;
+using API.Storages.Manufacturer.Model;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -12,81 +15,43 @@ namespace API.Controllers
     [ApiController]
     public class CarsController : ControllerBase
     {
-        private readonly CarRepository db;
+        private readonly CarRepository _db;
 
         public CarsController(ApplicationContext context)
         {
-            db = new CarRepository(context);
+            _db = new CarRepository(context);
 
-            //if (!context.Cars.Any())
-            //{
-            //    var manuf = new Manufacturer
-            //    {
-            //        Id = 1,
-            //        Name = "Toyota",
-            //        Cars = new List<string> { "Corolla" }
-            //    };
-            //    var car = new Car 
-            //    {
-            //        Id = 1, 
-            //        ModelName = "Corolla", 
-            //        ManufacturerId = 1, 
-            //        EngineId = 1
-            //    };
-            //    var engine = new Engine
-            //    {
-            //        Id = 1,
-            //        Type = "fuel", 
-            //        Cars = new List<string> { "Corolla" }
-            //    };
-            //    context.Manufacturers.Add(manuf);
-            //    context.Engines.Add(engine);
-            //    context.Cars.Add(car);
-            //    context.SaveChanges();
-            //}
+            if (!context.Cars.Any())
+            {
+                var manuf = new Manufacturer
+                {
+                    Id = 1, Name = "Toyota", Cars = new List<string> { "Corolla" }
+                };
+                var car = new Car
+                {
+                    Id = 1, ModelName = "Corolla", ManufacturerId = 1, EngineId = 1
+                };
+                var engine = new Engine
+                {
+                    Id = 1, Type = "Fuel", Cars = new List<string> { "Corolla" }
+                };
+                context.Manufacturers.Add(manuf);
+                context.Engines.Add(engine);
+                context.Cars.Add(car);
+                context.SaveChanges();
+            }
         }
-
-        //public CarsController(ModelsContext context)
-        //{
-        //    db = context;
-        //if (!db.Cars.Any())
-        //{
-        //    var manuf = new Manufacturer { Name = "Toyota" };
-        //    var car = new Car { ModelName = "Biba" };
-        //    var engine = new Engine { Type = "fuel" };
-
-        //    db.Cars.Add(car);
-
-        //    manuf.Cars = new List<string> { car.ModelName };
-        //    engine.Cars = new List<string> { car.ModelName };
-
-        //    db.Manufacturers.Add(manuf);
-        //    db.Engines.Add(engine);
-
-        //    db.SaveChanges();
-        //}
-        //else
-        //{
-        //    var manuf = db.Manufacturers.Find(1);
-        //    var engine = db.Engines.Find(1);
-        //    var car = db.Cars.Find(1);
-        //    manuf.Cars = new List<string> { car.ModelName };
-        //    engine.Cars = new List<string> { car.ModelName };
-        //}
-        //}
 
         [HttpGet]
         public async Task<List<Car>> GetCars()
         {
-            return await db.GetCarsListAsync();
-            //return await db.Cars
-            //    .ToListAsync();
+            return await _db.GetCarsListAsync();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Car>> GetCar(int id)
         {
-            var car = await db.GetCarAsync(id);
+            var car = await _db.GetCarAsync(id);
             if (car == null)
                 return NotFound();
             return car;
@@ -99,22 +64,17 @@ namespace API.Controllers
             {
                 return BadRequest();
             }
-            //var manuf = db.Manufacturers.Find(car.ManufacturerId);
-            //var engine = db.Engines.Find(car.EngineId);
-            //if (manuf == null || engine == null)
+
             try
             {
-                await db.CreateAsync(car);
+                await _db.CreateAsync(car);
             }
             catch (NullReferenceException e)
             {
                 return BadRequest(e.Message);
             }
-
-            //manuf.Cars.Add(car.ModelName);
-            //engine.Cars.Add(car.ModelName);
-            //db.Cars.Add(car);
-            await db.SaveAsync();
+            
+            await _db.SaveAsync();
             return Ok(car);
         }
     }
